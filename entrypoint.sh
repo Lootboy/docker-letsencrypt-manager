@@ -132,7 +132,7 @@ function auto_renew {
     DOMAINNAME=$(basename ${CERT_DIR_PATH})
 
     if ! openssl x509 -noout -checkend $((4*7*86400)) -in "${cert}"; then
-      subject="$(openssl x509 -noout -subject -in "${cert}" | grep -o -E 'CN=[^ ,]+' | tr -d 'CN=')"
+      subject="$(openssl x509 -noout -subject -in "${cert}" | sed -e "s/^.*CN[ , =]*\([^ ,=]*\).*$/\1/g")"
       subjectaltnames="$(openssl x509 -noout -text -in "${cert}" | sed -n '/X509v3 Subject Alternative Name/{n;p}' | sed 's/\s//g' | tr -d 'DNS:' | sed 's/,/ /g')"
       domains="${subject}"
       for name in ${subjectaltnames}; do
